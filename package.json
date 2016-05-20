@@ -11,14 +11,30 @@
         "Other"
     ],
     "activationEvents": [
-        "onCommand:extension.sayHello"
+        "onCommand:extension.px2rem"
     ],
     "main": "./out/src/extension",
     "contributes": {
-        "commands": [{
-            "command": "extension.sayHello",
-            "title": "Hello World"
-        }]
+        "configuration": {
+            "title": "px2rem设置",
+            "properties": {
+                "px2rem.htmlFontSize": {
+                    "type": "number",
+                    "default": 24,
+                    "description": "当前项目中html元素的font-size值"
+                }
+            }
+        },
+        "commands": [
+            {
+                "command": "extension.px2rem",
+                "title": "把px转换为rem"
+            }
+        ],
+        "keybindings": {
+            "command": "extension.px2rem",
+            "key": "alt+c"
+        }
     },
     "scripts": {
         "vscode:prepublish": "node ./node_modules/vscode/bin/compile",

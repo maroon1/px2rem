@@ -1,29 +1,59 @@
 'use strict';
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
-import * as vscode from 'vscode';
+import {window, workspace, WorkspaceConfiguration, commands, Disposable, ExtensionContext, StatusBarAlignment, StatusBarItem, TextDocument} from 'vscode';
 
-// this method is called when your extension is activated
-// your extension is activated the very first time the command is executed
-export function activate(context: vscode.ExtensionContext) {
+export function activate(context: ExtensionContext) {
 
-    // Use the console to output diagnostic information (console.log) and errors (console.error)
-    // This line of code will only be executed once when your extension is activated
     console.log('Congratulations, your extension "px2rem" is now active!');
 
-    // The command has been defined in the package.json file
-    // Now provide the implementation of the command with  registerCommand
-    // The commandId parameter must match the command field in package.json
-    let disposable = vscode.commands.registerCommand('extension.sayHello', () => {
-        // The code you place here will be executed every time your command is executed
+    let configuration = new Configuration();
 
-        // Display a message box to the user
-        vscode.window.showInformationMessage('Hello World!');
+    window.showInformationMessage(`注意：当前项目的 html 元素的 font-size 为${configuration.getRem()}px。`);
+
+    //当设置更改的时候，重置rem数值。
+    workspace.onDidChangeConfiguration(configuration.setRemFromSetting, configuration);
+
+    let disposable = commands.registerCommand('extension.px2rem', () => {
+
+        let editor = window.activeTextEditor;
+        let doc = editor.document;
+        let selections = editor.selections;
+
+        editor.edit(builder => {
+            selections.forEach(selection => {
+                let CursorPosition = selection.start;
+                let wordRange = doc.getWordRangeAtPosition(CursorPosition);
+                let selectedWord = doc.getText(wordRange);
+                let matches = selectedWord.match(/(-?)([0-9]+)px/g);
+                if (matches != null) {
+                    let toRem = "";
+                    matches.forEach(element => {
+                        let value:number = <number>element.slice(0, element.lastIndexOf('px'));
+                        toRem += `${}rem`;
+                    });
+                }
+            });
+        });
+
     });
 
     context.subscriptions.push(disposable);
 }
 
-// this method is called when your extension is deactivated
-export function deactivate() {
+class Configuration {
+
+    private _configuration: WorkspaceConfiguration;
+    public rem: number;
+
+    constructor() {
+        this.setRemFromSetting();
+    }
+
+    public getRem(): number {
+        return this.rem;
+    }
+
+    public setRemFromSetting() {
+        this._configuration = workspace.getConfiguration("px2rem");
+        this.rem = this._configuration.get('htmlFontSize', <number>24);
+    }
 }
