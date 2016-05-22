@@ -11,7 +11,8 @@
         "Other"
     ],
     "activationEvents": [
-        "onCommand:extension.px2rem"
+        "onCommand:extension.px2rem",
+        "onCommand:extension.px2em"
     ],
     "main": "./out/src/extension",
     "contributes": {
@@ -29,12 +30,22 @@
             {
                 "command": "extension.px2rem",
                 "title": "把px转换为rem"
+            },
+            {
+                "command": "extension.px2em",
+                "title": "根据所选的font-size，把px转换为em"
             }
         ],
-        "keybindings": {
-            "command": "extension.px2rem",
-            "key": "alt+c"
-        }
+        "keybindings": [
+            {
+                "command": "extension.px2rem",
+                "key": "alt+c"
+            },
+            {
+                "command": "extension.px2em",
+                "key": "shift+alt+c"
+            }
+        ]
     },
     "scripts": {
         "vscode:prepublish": "node ./node_modules/vscode/bin/compile",
