@@ -1,5 +1,5 @@
 'use strict';
-import {window, TextEditor, Selection, Position, Range, workspace, WorkspaceConfiguration, commands, Disposable, ExtensionContext, StatusBarAlignment, StatusBarItem, TextDocument} from 'vscode';
+import {window, InputBoxOptions, TextEditor, Selection, Position, Range, workspace, WorkspaceConfiguration, commands, Disposable, ExtensionContext, StatusBarAlignment, StatusBarItem, TextDocument} from 'vscode';
 
 export function activate(context: ExtensionContext) {
 
@@ -18,13 +18,27 @@ export function activate(context: ExtensionContext) {
         let positions = what.getCursorPositions();
         let wordSet = what.getWordAtPosition(positions);
         let rem = configuration.getRem();
-        convert.convertPx(wordSet,rem,'rem');
+        convert.convertPx(wordSet, rem, 'rem');
     });
     let rem2em = commands.registerCommand('extension.px2em', () => {
         let positions = what.getCursorPositions();
         let wordSet = what.getWordAtPosition(positions);
-        let baseSize = 2;
-        convert.convertPx(wordSet,baseSize,'em');
+        let option: InputBoxOptions = {
+            placeHolder: "请输入font-size的基准值",
+            prompt: "可输入px值或rem值，当为px值时，可省略px。",
+        }
+        window.showInputBox(option).then((value) => {
+            let matchs = value.match(/(\d+)(rem)?/);
+            if (matchs !== null) {
+                let basefontsize = <any>matchs[0].match(/\d+/)[0];
+                if (matchs[0].match(/rem/)) {
+                    let rem = configuration.getRem();
+                    basefontsize = <any>basefontsize * rem;
+                }
+                convert.convertPx(wordSet, basefontsize, 'em');
+            }
+        });
+        // convert.convertPx(wordSet, baseSize, 'em');
     });
     context.subscriptions.push(px2rem);
 }
@@ -42,7 +56,7 @@ class Configuration {
         return this.rem;
     }
 
-    public setRemFromSetting() {
+    public setRemFromSetting(): void {
         this._configuration = workspace.getConfiguration("px2rem");
         this.rem = this._configuration.get('htmlFontSize', <number>24);
     }
@@ -58,7 +72,7 @@ class Convert {
         this._configuration = configuration;
     }
 
-    public convertPx(wordSet: Word[],rem:number,unit: string) {
+    public convertPx(wordSet: Word[], rem: number, unit: string): void {
         this._editor.edit(builder => {
 
             wordSet.forEach(word => {
@@ -67,7 +81,7 @@ class Convert {
                     let toRem = "";
                     matches.forEach(element => {
                         let value = <any>(<any>element.slice(0, element.lastIndexOf('px')) / rem).toFixed(5) / 1;
-                        toRem += `${value+unit}`;
+                        toRem += `${value + unit}`;
                     });
                     builder.replace(new Selection(word.range.start, word.range.end), toRem);
                 }
@@ -95,7 +109,7 @@ class Convert {
     //                 })
     //                 builder.replace(new Selection(word.range.start, word.range.end), toEm);
     //             }
-                
+
     //         });
     //     });
     // }
@@ -122,7 +136,7 @@ class What {
         this._doc = this._editor.document;
     }
 
-    public getCursorPositions(isPrimaryCursor?: boolean) {
+    public getCursorPositions(isPrimaryCursor?: boolean): Position[] {
 
         let positions: Position[] = [];
 
@@ -138,7 +152,7 @@ class What {
         return positions;
     }
 
-    public getWordAtPosition(positions: Position[]) {
+    public getWordAtPosition(positions: Position[]): Word[] {
         let wordSet: Word[] = [];
         positions.forEach(position => {
             let wordRange = this._doc.getWordRangeAtPosition(position);
