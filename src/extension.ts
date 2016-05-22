@@ -38,7 +38,6 @@ export function activate(context: ExtensionContext) {
                 convert.convertPx(wordSet, basefontsize, 'em');
             }
         });
-        // convert.convertPx(wordSet, baseSize, 'em');
     });
     context.subscriptions.push(px2rem);
 }
@@ -88,32 +87,6 @@ class Convert {
             });
         });
     }
-
-    // public convertToEmByBaseSize(wordSet: Word[]) {
-    //     this._editor.edit(builder => {
-    //         let rem = this._configuration.getRem();
-    //         let basefontsize = 2;
-    //         wordSet.forEach(word => {
-    //             let matches = word.value.match(/(-?)([0-9]+)(px)|(rem)/g);
-    //             if (matches != null) {
-    //                 let toEm = "";
-    //                 matches.forEach(element => {
-    //                     if (element.search('px')) {
-    //                         let value = <any>(<any>element.slice(0, element.lastIndexOf('px')) / basefontsize).toFixed(5) / 1;
-    //                         toEm += `${value}em`;
-    //                     }
-    //                     else {
-    //                         let value = <any>(<any>element.slice(0, element.lastIndexOf('rem')) * rem / basefontsize).toFixed(5) / 1;
-    //                         toEm += `${value}em`;
-    //                     }
-    //                 })
-    //                 builder.replace(new Selection(word.range.start, word.range.end), toEm);
-    //             }
-
-    //         });
-    //     });
-    // }
-
 }
 
 class Word {
