@@ -2,7 +2,7 @@
     "name": "px2rem",
     "displayName": "px2rem",
     "description": "An extension for convert px unit to rem unit.",
-    "version": "0.1.2",
+    "version": "0.1.3",
     "publisher": "Maroon1",
     "engines": {
         "vscode": "^1.0.0"

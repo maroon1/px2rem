@@ -5,6 +5,7 @@ export function activate(context: ExtensionContext) {
 
     console.log('Congratulations, your extension "px2rem" is now active!');
 
+    let lastValue: number;
     let configuration = new Configuration();
     let what = new What();
     let convert = new Convert(configuration);
@@ -27,14 +28,37 @@ export function activate(context: ExtensionContext) {
             placeHolder: "请输入font-size的基准值",
             prompt: "可输入px值或rem值，当为px值时，可省略px。",
         }
+        if (lastValue) {
+            option.placeHolder += `（${lastValue}）`
+        }
         window.showInputBox(option).then((value) => {
-            let matchs = value.match(/(\d+)(rem)?/);
-            if (matchs !== null) {
-                let basefontsize = <any>matchs[0].match(/\d+/)[0];
-                if (matchs[0].match(/rem/)) {
-                    let rem = configuration.getRem();
-                    basefontsize = <any>basefontsize * rem;
+            let basefontsize;
+            // 验证输入
+            // 按ESE则直接退出
+            if (value === undefined) {
+                return;
+            }
+            // 空输入则按照最后一次输入的数值
+            if (value.length === 0) {
+                if (!lastValue) {
+                    return;
                 }
+                basefontsize = lastValue;
+            }
+            // 否则验证用户输入的值
+            else {
+                let matchs = value.match(/(\d+)(rem)?/);
+                if (matchs !== null) {
+                    basefontsize = <any>matchs[0].match(/\d+/)[0];
+                    if (matchs[0].match(/rem/)) {
+                        let rem = configuration.getRem();
+                        basefontsize = <any>basefontsize * rem;
+                    }
+                    lastValue = basefontsize;
+                }
+            }
+            // 如果有可用的基础值，则进行计算
+            if (basefontsize) {
                 convert.convertPx(wordSet, basefontsize, 'em');
             }
         });
@@ -42,6 +66,7 @@ export function activate(context: ExtensionContext) {
     context.subscriptions.push(px2rem);
 }
 
+// 配置，目前只用于设置rem值
 class Configuration {
 
     private _configuration: WorkspaceConfiguration;
@@ -61,6 +86,7 @@ class Configuration {
     }
 }
 
+// 转换，用于单位的转换操作
 class Convert {
 
     private _editor;
@@ -71,7 +97,7 @@ class Convert {
         this._configuration = configuration;
     }
 
-    public convertPx(wordSet: Word[], rem: number, unit: string): void {
+    public convertPx(wordSet: Word[], factor: number, unit: string): void {
         this._editor.edit(builder => {
 
             wordSet.forEach(word => {
@@ -79,7 +105,7 @@ class Convert {
                 if (matches != null) {
                     let toRem = "";
                     matches.forEach(element => {
-                        let value = <any>(<any>element.slice(0, element.lastIndexOf('px')) / rem).toFixed(5) / 1;
+                        let value = <any>(<any>element.slice(0, element.lastIndexOf('px')) / factor).toFixed(5) / 1;
                         toRem += `${value + unit}`;
                     });
                     builder.replace(new Selection(word.range.start, word.range.end), toRem);
@@ -89,6 +115,7 @@ class Convert {
     }
 }
 
+// 需要被转换的词的对象，包含有范围和值
 class Word {
     public range: Range;
     public value: string;
@@ -99,6 +126,7 @@ class Word {
     }
 }
 
+// 用于获得文档中的相关元素
 class What {
 
     private _editor: TextEditor;
@@ -109,6 +137,7 @@ class What {
         this._doc = this._editor.document;
     }
 
+    // 获得光标位置
     public getCursorPositions(isPrimaryCursor?: boolean): Position[] {
 
         let positions: Position[] = [];
@@ -125,6 +154,7 @@ class What {
         return positions;
     }
 
+    // 获得光标所在位置的词
     public getWordAtPosition(positions: Position[]): Word[] {
         let wordSet: Word[] = [];
         positions.forEach(position => {
