@@ -18,12 +18,18 @@ export function activate(context: ExtensionContext) {
     let px2rem = commands.registerCommand('extension.px2rem', () => {
         let positions = what.getCursorPositions();
         let wordSet = what.getWordAtPosition(positions);
+        if (wordSet.length === 0) {
+            return;
+        }
         let rem = configuration.getRem();
         convert.convertPx(wordSet, rem, 'rem');
     });
     let rem2em = commands.registerCommand('extension.px2em', () => {
         let positions = what.getCursorPositions();
         let wordSet = what.getWordAtPosition(positions);
+        if (wordSet.length === 0) {
+            return;
+        }
         let option: InputBoxOptions = {
             placeHolder: "请输入font-size的基准值",
             prompt: "可输入px值或rem值，当为px值时，可省略px。",
@@ -192,6 +198,9 @@ class What {
         let wordSet: Word[] = [];
         positions.forEach(position => {
             let wordRange = this._doc.getWordRangeAtPosition(position);
+            if (!wordRange) {
+                return wordSet;
+            }
             let section = new Selection(wordRange.start, wordRange.end)
             let selectedWord = this._doc.getText(wordRange);
 
