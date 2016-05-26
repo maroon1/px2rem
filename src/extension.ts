@@ -32,32 +32,56 @@ export function activate(context: ExtensionContext) {
             option.placeHolder += `（${lastValue}）`
         }
         window.showInputBox(option).then((value) => {
-            let basefontsize;
-            let basefontsize_temp
             // 验证输入
             // 按ESE则直接退出
             if (value === undefined) {
                 return;
             }
-            // 空输入且没有最后一个有效值返回
-            if (value.length === 0 && !lastValue) {
-                return;
-            }
+            // 定义一个用户输入的容器
+            let userInput: string;
             if (value.length === 0) {
-                basefontsize_temp = lastValue;
-            } else {
-                let matchs = value.match(/(\d+)(\s+)?(rem|px)?/);
-                if (matchs !== null) {
-                    lastValue = matchs[0];
-                    basefontsize_temp = lastValue;
+                // 空输入且没有最后一个有效值返回
+                if (!lastValue) {
+                    return;
+                }
+                // 如果有，把这个值作为用户输入值
+                userInput = lastValue;
+            }
+            if (!userInput) {
+                // 如果没有使用上一次的值，则使用用户输入的值
+                userInput = value;
+            }
+            // 定义用户输入的结果
+            let userInputResult;
+            // 第一基础字体大小的容器
+            let basefontsize;
+            userInputResult = userInput.match(/^\d+(\.\d+)?$/);
+            if (userInputResult !== null) {
+                basefontsize = userInputResult[0];
+                userInput = basefontsize + "px";
+                convert.convertPx(wordSet, basefontsize, 'em');
+            }
+            else {
+                if (userInput.search(/^\d+(\.\d+)?(\s+)?(rem)$/) !== -1) {
+                    lastValue = userInput;
+                    userInputResult = userInput.match(/^\d+(\.\d+)?/);
+                    let rem = configuration.getRem();
+                    basefontsize = <any>userInputResult[0] * rem;
+                    convert.convertPx(wordSet, basefontsize, 'em');
+                }
+                else if (userInput.search(/^\d+(\.\d+)?(\s+)?(px)$/) !== -1) {
+                    userInputResult = userInput.match(/^\d+(\.\d+)?/);
+                    basefontsize = <any>userInputResult[0];
+                    convert.convertPx(wordSet, basefontsize, 'em');
+                }
+                else {
+                    return;
                 }
             }
-            basefontsize = <any>basefontsize_temp.match(/\d+/)[0];
-            if (basefontsize_temp.match(/rem/)) {
-                let rem = configuration.getRem();
-                basefontsize = <any>basefontsize * rem;
+            // 如果输入的值可用，则保存这个输入值
+            if (basefontsize) {
+                lastValue = userInput;
             }
-            convert.convertPx(wordSet, basefontsize, 'em');
         });
     });
     context.subscriptions.push(px2rem);
@@ -86,7 +110,7 @@ class Configuration {
 // 转换，用于单位的转换操作
 class Convert {
 
-    private _editor;
+    private _editor: TextEditor;
     private _configuration;
 
     constructor(configuration: Configuration) {
@@ -94,7 +118,7 @@ class Convert {
         this._configuration = configuration;
         window.onDidChangeActiveTextEditor(editor => {
             this._editor = editor;
-        },this)
+        }, this)
     }
 
     public convertPx(wordSet: Word[], factor: number, unit: string): void {
@@ -138,7 +162,7 @@ class What {
         window.onDidChangeActiveTextEditor(editor => {
             this._editor = editor;
             this._doc = this._editor.document;
-        },this)
+        }, this)
     }
 
     // 获得光标位置
@@ -147,11 +171,11 @@ class What {
         let positions: Position[] = [];
 
         if (isPrimaryCursor) {
-            positions.push(this._editor.selection.start);
+            positions.push(this._editor.selection.active);
         }
         else {
             this._editor.selections.forEach(selction => {
-                positions.push(selction.start);
+                positions.push(selction.active);
             });
         }
 
