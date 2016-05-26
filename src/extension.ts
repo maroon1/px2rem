@@ -5,7 +5,7 @@ export function activate(context: ExtensionContext) {
 
     console.log('Congratulations, your extension "px2rem" is now active!');
 
-    let lastValue: number;
+    let lastValue: string;
     let configuration = new Configuration();
     let what = new What();
     let convert = new Convert(configuration);
@@ -33,34 +33,31 @@ export function activate(context: ExtensionContext) {
         }
         window.showInputBox(option).then((value) => {
             let basefontsize;
+            let basefontsize_temp
             // 验证输入
             // 按ESE则直接退出
             if (value === undefined) {
                 return;
             }
-            // 空输入则按照最后一次输入的数值
+            // 空输入且没有最后一个有效值返回
+            if (value.length === 0 && !lastValue) {
+                return;
+            }
             if (value.length === 0) {
-                if (!lastValue) {
-                    return;
-                }
-                basefontsize = lastValue;
-            }
-            // 否则验证用户输入的值
-            else {
-                let matchs = value.match(/(\d+)(rem)?/);
+                basefontsize_temp = lastValue;
+            } else {
+                let matchs = value.match(/(\d+)(\s+)?(rem|px)?/);
                 if (matchs !== null) {
-                    basefontsize = <any>matchs[0].match(/\d+/)[0];
-                    if (matchs[0].match(/rem/)) {
-                        let rem = configuration.getRem();
-                        basefontsize = <any>basefontsize * rem;
-                    }
-                    lastValue = basefontsize;
+                    lastValue = matchs[0];
+                    basefontsize_temp = lastValue;
                 }
             }
-            // 如果有可用的基础值，则进行计算
-            if (basefontsize) {
-                convert.convertPx(wordSet, basefontsize, 'em');
+            basefontsize = <any>basefontsize_temp.match(/\d+/)[0];
+            if (basefontsize_temp.match(/rem/)) {
+                let rem = configuration.getRem();
+                basefontsize = <any>basefontsize * rem;
             }
+            convert.convertPx(wordSet, basefontsize, 'em');
         });
     });
     context.subscriptions.push(px2rem);
@@ -95,6 +92,9 @@ class Convert {
     constructor(configuration: Configuration) {
         this._editor = window.activeTextEditor;
         this._configuration = configuration;
+        window.onDidChangeActiveTextEditor(editor => {
+            this._editor = editor;
+        },this)
     }
 
     public convertPx(wordSet: Word[], factor: number, unit: string): void {
@@ -135,6 +135,10 @@ class What {
     constructor() {
         this._editor = window.activeTextEditor;
         this._doc = this._editor.document;
+        window.onDidChangeActiveTextEditor(editor => {
+            this._editor = editor;
+            this._doc = this._editor.document;
+        },this)
     }
 
     // 获得光标位置
