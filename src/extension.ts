@@ -122,30 +122,35 @@ class Convert {
     }
 
     public convertPx(wordSet: Word[], factor: number, unit: string): void {
+        let selections: Selection[] = [];
         this._editor.edit(builder => {
-
             wordSet.forEach(word => {
                 let matches = word.value.match(/(-?)([0-9]+)px/g);
+                let toRem = "";
                 if (matches != null) {
-                    let toRem = "";
                     matches.forEach(element => {
                         let value = <any>(<any>element.slice(0, element.lastIndexOf('px')) / factor).toFixed(5) / 1;
                         toRem += `${value + unit}`;
                     });
-                    builder.replace(new Selection(word.range.start, word.range.end), toRem);
+                    builder.replace(word.selection, toRem);
                 }
+                let section = word.selection.union(new Range(word.selection.start,word.selection.start.translate(0,toRem.length)));
+                let cursorPosition = section.end;
+                selections.push(new Selection(cursorPosition, cursorPosition));
             });
         });
+        // 重设光标的位置
+        this._editor.selections = selections;
     }
 }
 
 // 需要被转换的词的对象，包含有范围和值
 class Word {
-    public range: Range;
-    public value: string;
+    selection: Selection;
+    value: string;
 
-    constructor(range: Range, value: string) {
-        this.range = range;
+    constructor(selection: Selection, value: string) {
+        this.selection = selection;
         this.value = value;
     }
 }
@@ -187,9 +192,10 @@ class What {
         let wordSet: Word[] = [];
         positions.forEach(position => {
             let wordRange = this._doc.getWordRangeAtPosition(position);
+            let section = new Selection(wordRange.start, wordRange.end)
             let selectedWord = this._doc.getText(wordRange);
 
-            let word = new Word(wordRange, selectedWord);
+            let word = new Word(section, selectedWord);
             wordSet.push(word);
         });
         return wordSet;
