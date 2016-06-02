@@ -135,7 +135,7 @@ class Convert {
                 let toRem = "";
                 if (matches != null) {
                     matches.forEach(element => {
-                        let value = <any>(<any>element.slice(0, element.lastIndexOf('px')) / factor).toFixed(5) / 1;
+                        let value = <any>(<any>element.slice(0, element.lastIndexOf('px')) / factor).toFixed(9) / 1;
                         toRem += `${value + unit}`;
                     });
                     builder.replace(word.selection, toRem);
