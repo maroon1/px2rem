@@ -1,62 +1,69 @@
 {
-    "name": "px2rem",
-    "displayName": "px2rem",
-    "description": "An extension for convert px unit to rem unit.",
-    "version": "0.1.9",
-    "publisher": "Maroon1",
-    "engines": {
-        "vscode": "^1.0.0"
+  "name": "px2rem",
+  "displayName": "px2rem",
+  "description": "An extension for convert px unit to rem unit.",
+  "version": "0.1.9",
+  "publisher": "Maroon1",
+  "engines": {
+    "vscode": "^1.0.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "keywords": [
+    "vscode",
+    "extension",
+    "px2rem",
+    "px to rem"
+  ],
+  "activationEvents": [
+    "onCommand:extension.px2rem",
+    "onCommand:extension.px2em"
+  ],
+  "main": "./out/src/extension",
+  "contributes": {
+    "configuration": {
+      "title": "px2rem设置",
+      "properties": {
+        "px2rem.htmlFontSize": {
+          "type": "number",
+          "default": 24,
+          "description": "当前项目中html元素的font-size值"
+        }
+      }
     },
-    "categories": [
-        "Other"
+    "commands": [
+      {
+        "command": "extension.px2rem",
+        "title": "把px转换为rem"
+      },
+      {
+        "command": "extension.px2em",
+        "title": "根据所选的font-size，把px转换为em"
+      }
     ],
-    "activationEvents": [
-        "onCommand:extension.px2rem",
-        "onCommand:extension.px2em"
-    ],
-    "main": "./out/src/extension",
-    "contributes": {
-        "configuration": {
-            "title": "px2rem设置",
-            "properties": {
-                "px2rem.htmlFontSize": {
-                    "type": "number",
-                    "default": 24,
-                    "description": "当前项目中html元素的font-size值"
-                }
-            }
-        },
-        "commands": [
-            {
-                "command": "extension.px2rem",
-                "title": "把px转换为rem"
-            },
-            {
-                "command": "extension.px2em",
-                "title": "根据所选的font-size，把px转换为em"
-            }
-        ],
-        "keybindings": [
-            {
-                "command": "extension.px2rem",
-                "key": "alt+c"
-            },
-            {
-                "command": "extension.px2em",
-                "key": "shift+alt+c"
-            }
-        ]
-    },
-    "scripts": {
-        "vscode:prepublish": "tsc -p ./",
-        "compile": "tsc -watch -p ./",
-        "postinstall": "node ./node_modules/vscode/bin/install"
-    },
-    "devDependencies": {
-        "typescript": "^2.0.3",
-        "vscode": "^1.0.0", // Or a higher version if necessary
-        "mocha": "^2.3.3",
-        "@types/node": "^6.0.40",
-        "@types/mocha": "^2.2.32"
-    }
+    "keybindings": [
+      {
+        "command": "extension.px2rem",
+        "key": "alt+c"
+      },
+      {
+        "command": "extension.px2em",
+        "key": "shift+alt+c"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "tsc -p ./",
+    "compile": "tsc -watch -p ./",
+    "postinstall": "node ./node_modules/vscode/bin/install"
+  },
+  "devDependencies": {
+    "@types/mocha": "^2.2.39",
+    "@types/node": "^7.0.5",
+    "mocha": "^3.2.0",
+    "tslint": "^4.5.1",
+    "typescript": "^2.0.3",
+    "vscode": "^1.0.0"
+  }
 }
