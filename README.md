@@ -20,7 +20,7 @@
 安装方法非常简单：
 
 1. 在仓库中找到 px2rem-\*.\*.\*.vsix 文件并下载到本地。
-2. 打开 VS Code 并在命令面板中输入install from vsix打开文件选择对话框
+2. 打开 VS Code 并在命令面板中输入 `install from vsix` 打开文件选择对话框
 3. 选择之前下载的vsix的扩展文件即可安装完毕
 
 ### 命令
