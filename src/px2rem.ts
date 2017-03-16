@@ -7,9 +7,7 @@ export default function px2rem(textEditor: TextEditor, edit: TextEditorEdit) {
   const doc = textEditor.document;
   const selections = getValidSelections(textEditor, doc);
 
-  if (selections.length === 0) {
-    return;
-  }
+  if (selections.length === 0) { return; }
 
   textEditor.selections = selections;
 
