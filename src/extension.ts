@@ -15,7 +15,7 @@ export function activate(context: ExtensionContext) {
     });
 
     let px2emCommand = commands.registerTextEditorCommand('extension.px2em', (textEditor, edit) => {
-        lastValue = px2em(textEditor, edit, lastValue);
+        px2em(textEditor, lastValue).then((value) => { lastValue = value; });
     });
 
     context.subscriptions.push(px2remCommand, px2emCommand);

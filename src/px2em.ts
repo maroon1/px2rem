@@ -13,35 +13,39 @@ function hasValidInput(text: string) {
   return true;
 }
 
-export default function px2em(textEditor: TextEditor, edit: TextEditorEdit, lastValue: string | undefined) {
-  const doc = textEditor.document;
-  const selections = getValidSelections(textEditor, doc);
+export default function px2em(textEditor: TextEditor, lastValue: string | undefined): Promise<string | undefined> {
+  return new Promise<string | undefined>((resolve, reject) => {
+    const doc = textEditor.document;
+    const selections = getValidSelections(textEditor, doc);
 
-  if (selections.length === 0) { return; }
+    if (selections.length === 0) { return; }
 
-  textEditor.selections = selections;
+    textEditor.selections = selections;
 
-  let option: InputBoxOptions = {
-    placeHolder: '请输入font-size的基准值',
-    prompt: '可输入px值或rem值，当为px值时，可省略px。',
-    value: lastValue,
-  };
+    let option: InputBoxOptions = {
+      placeHolder: '请输入font-size的基准值',
+      prompt: '单位为px或rem，当单位为px时，可省略px。',
+      value: lastValue,
+    };
 
-  window.showInputBox(option)
-    .then((input) => {
-      if (!hasValidInput(input)) { throw '无效值'; }
+    window.showInputBox(option)
+      .then((input) => {
+        if (!hasValidInput(input)) { return; }
 
-      let match = input.match(regex) as RegExpMatchArray;
-      let factor = +match[1];
-      let unit = match[2];
+        let match = input.match(regex) as RegExpMatchArray;
+        let factor = +match[1];
+        let unit = match[2];
 
-      if (!unit) { unit = 'px'; }
-      lastValue = factor + unit;
+        if (!unit) { unit = 'px'; }
+        lastValue = factor + unit;
 
-      if (unit === 'rem') { factor *= config.baseFontSize; }
+        if (unit === 'rem') { factor *= config.baseFontSize; }
 
-      convert(textEditor, edit, factor, 'em');
-    });
+        textEditor.edit((edit) => {
+          convert(textEditor, edit, factor, 'em');
+        });
 
-  return lastValue;
+        resolve(lastValue);
+      });
+  });
 }
