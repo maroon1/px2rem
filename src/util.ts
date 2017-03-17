@@ -1,5 +1,7 @@
 import { Range, Selection, TextDocument, TextEditor, TextEditorEdit } from 'vscode';
 
+import { config } from './config';
+
 let regex = /(-)?\d*\.?\d+px/g;
 
 function hasValidValue(text: string): boolean {
@@ -46,11 +48,22 @@ export function getValidSelections(textEditor: TextEditor, doc: TextDocument) {
 
 export function convert(textEditor: TextEditor, edit: TextEditorEdit, factor: number, unit: string) {
   const doc = textEditor.document;
+  const decimals = config.decimals;
   textEditor.selections.forEach((selection) => {
     let text = doc.getText(selection);
     let value = Number.parseFloat(text.replace('px', ''));
     let result = value / factor;
-    let fixed = Number.parseFloat(result.toFixed(9));
+    let fixed = Number.parseFloat(result.toFixed(decimals));
     edit.replace(selection, fixed + unit);
+  });
+
+  if (!config.keepSelections) {
+    resetSelections(textEditor);
+  }
+}
+
+function resetSelections(textEditor: TextEditor) {
+  textEditor.selections = Array.from(textEditor.selections).map((selection) => {
+    return new Selection(selection.end, selection.end);
   });
 }
