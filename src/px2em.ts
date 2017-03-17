@@ -1,4 +1,4 @@
-import { InputBoxOptions, TextEditor, TextEditorEdit, window } from 'vscode';
+import { InputBoxOptions, TextEditor, window } from 'vscode';
 
 import { config } from './config';
 import { convert, getValidSelections } from './util';
