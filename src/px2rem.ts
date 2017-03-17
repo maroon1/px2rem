@@ -11,7 +11,7 @@ export default function px2rem(textEditor: TextEditor, edit: TextEditorEdit) {
 
   textEditor.selections = selections;
 
-  let factor = config.baseFontSize;
+  let factor = config.htmlFontSize;
 
   convert(textEditor, edit, factor, 'rem');
 }

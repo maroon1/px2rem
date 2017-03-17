@@ -29,6 +29,16 @@
           "type": "number",
           "default": 24,
           "description": "当前项目中html元素的font-size值"
+        },
+        "px2rem.decimals": {
+          "type": "number",
+          "default": 9,
+          "description": "转换后保留的小数位"
+        },
+        "px2rem.keepSelections": {
+          "type": "boolean",
+          "default": false,
+          "description": "转换后的文本是否保持选中状态"
         }
       }
     },

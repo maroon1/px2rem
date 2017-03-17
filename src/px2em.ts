@@ -8,7 +8,7 @@ let regex = /^((?:\d*\.)?\d+)(rem|px)?$/;
 function hasInvalidInput(text: string) {
   const hasPressESC = text === undefined;
   const isEmpty = text === '';
-  const isUnknowInput = text.search(regex) === -1;
+  const isUnknowInput = text && text.search(regex) === -1;
   if (hasPressESC || isEmpty || isUnknowInput) { return true; }
 }
 
@@ -36,7 +36,7 @@ export default async function px2em(textEditor: TextEditor, lastValue: string | 
   if (!unit) { unit = 'px'; }
   lastValue = factor + unit;
 
-  if (unit === 'rem') { factor *= config.baseFontSize; }
+  if (unit === 'rem') { factor *= config.htmlFontSize; }
 
   textEditor.edit((edit) => {
     convert(textEditor, edit, factor, 'em');
